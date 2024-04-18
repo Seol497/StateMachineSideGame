@@ -1,98 +1,68 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Enemy : Entity
 {
-    [Header("Move info")]
-    public float moveSpeed = 6f;
-
-    [Header("Collision info")]
-    [SerializeField] private Transform playerCheck;
-    [SerializeField] private float playerCheckDistance;
-    [SerializeField] private Transform groundCheck;
-    [SerializeField] private float groundcheckDistance;
-    [SerializeField] private Transform wallCheck;
-    [SerializeField] private float wallCheckDistance;
-    [SerializeField] private LayerMask whatIsGround;
+    [Header("Move Info")]
+    public float moveSpeed;
+    public float idleTime;
 
     [Header("Anim Duration")]
     public float idleDuration = 3;
     public float moveDuration = 7;
+    public float speedUp = 2;
 
-    public int facingDir { get; private set; } = 1;
-    private bool facingRight = true;
-
-    #region 애니메이터
-    public Animator anim { get; private set; }
-    public Rigidbody2D rb { get; private set; }
-    #endregion
+    [Header("bool")]
+    public bool isPlayerDetected = false;
+    public bool isAttackAlready = false;
+    public bool isAttacking = false;
 
     #region States
     public EnemyStateMachine stateMachine { get; private set; }
     public EnemyIdleState idleState { get; private set; }
     public EnemyMoveState moveState { get; private set; }
+    public EnemyAttackState attackState { get; private set; }
     #endregion
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         stateMachine = new EnemyStateMachine();
         idleState = new EnemyIdleState(this, stateMachine, "Idle");
         moveState = new EnemyMoveState(this, stateMachine, "Move");
+        attackState = new EnemyAttackState(this, stateMachine, "Attack");
     }
 
-    private void Start()
+    protected override void Start()
     {
-        anim = GetComponentInChildren<Animator>();
-        rb = GetComponent<Rigidbody2D>();
-
+        base.Start();
         stateMachine.Initialize(idleState);
     }
-    private void Update()
+
+    protected override void Update()
     {
+        base.Update();
         stateMachine.currentState.Update();
     }
+    public override bool IsGroundDetected() => base.IsGroundDetected();
+    public override bool IsWallDetected() => base.IsWallDetected();
 
-    #region Velocity
-    public void ZeroVelocity() => rb.velocity = new Vector2(0, 0);
-
-
-
-
-    public void SetVelocity(float _xVelocity, float _yVelocity)
+    protected override void OnDrawGizmos()
     {
-        rb.velocity = new Vector2(_xVelocity, _yVelocity);
-        FlipController(_xVelocity);
-    }
-    #endregion
-
-    #region Flip
-    public void Flip()
-    {
-        facingDir = facingDir * -1;
-        facingRight = !facingRight;
-        transform.Rotate(0, 180, 0);
+        base.OnDrawGizmos();
     }
 
-    public void FlipController(float _x)
+    protected void OnCollisionEnter2D(Collision2D collision)
     {
-        if (_x > 0 && !facingRight)
-            Flip();
-        else if (_x < 0 && facingRight)
-            Flip();
+        if (collision.collider.CompareTag("Player"))
+        {
+            Physics2D.IgnoreCollision(collision.collider, GetComponent<Collider2D>());
+        }
+        if (collision.collider.CompareTag("Enemy"))
+        {
+            Physics2D.IgnoreCollision(collision.collider, GetComponent<Collider2D>());
+        }
     }
-    #endregion
 
-    public bool IsPlayerDetected() => Physics2D.Raycast(playerCheck.position, Vector2.right * facingDir, playerCheckDistance, LayerMask.GetMask("Player"));
-    public bool IsGroundDetected() => Physics2D.Raycast(groundCheck.position, Vector2.down, groundcheckDistance, whatIsGround);
-    public bool IsWallDetected() => Physics2D.Raycast(wallCheck.position, Vector2.right * facingDir, wallCheckDistance, whatIsGround);
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawLine(playerCheck.position, new Vector3(playerCheck.position.x + playerCheckDistance, playerCheck.position.y));
-        Gizmos.DrawLine(groundCheck.position, new Vector3(groundCheck.position.x, groundCheck.position.y - groundcheckDistance));
-        Gizmos.DrawLine(wallCheck.position, new Vector3(wallCheck.position.x + wallCheckDistance, wallCheck.position.y));
-
-    }
 }

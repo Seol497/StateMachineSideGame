@@ -5,7 +5,8 @@ using UnityEngine.Windows;
 
 public class EnemyIdleState : EnemyState
 {
-    public EnemyIdleState(Enemy _enemy, EnemyStateMachine _stateMachine, string _animBoolName) : base(_enemy, _stateMachine, _animBoolName)
+    public EnemyIdleState(Enemy _enemyBase, EnemyStateMachine _stateMachine, string _animBoolName) : 
+        base(_enemyBase, _stateMachine, _animBoolName)
     {
     }
     public override void Enter()
@@ -24,11 +25,12 @@ public class EnemyIdleState : EnemyState
     {
         base.Update();
 
-
-        if (x != 0)
-            stateMachine.ChangeState(enemy.moveState);
-
         if (stateTimer < 0)
             stateMachine.ChangeState(enemy.moveState);
+
+        if (enemy.isPlayerDetected)
+        {
+            stateMachine.ChangeState(enemy.moveState);
+        }
     }
 }

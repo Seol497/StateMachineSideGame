@@ -8,20 +8,21 @@ public class EnemyMoveState : EnemyState
     public EnemyMoveState(Enemy _enemy, EnemyStateMachine _stateMachine, string _animBoolName) : base(_enemy, _stateMachine, _animBoolName)
     {
     }
+    private bool isDetected;
 
-    private bool isPlayerDetected;
     public override void Enter()
     {
         base.Enter();
 
+
         stateTimer = enemy.moveDuration;
-        if (enemy.transform.rotation.y == 180)
-            x = 1;
+        if (enemy.transform.rotation.y == -180)
+            x = -1;
         else if (enemy.transform.rotation.y == 0)
-            x = -1;
+            x = 1;
         else
-            x = -1;
-        if ((int)Random.Range(0, 4) == 0)
+            x = 1;
+        if ((int)Random.Range(0, 5) == 0 && !enemy.isPlayerDetected)
             x *= -1;
     }
 
@@ -39,23 +40,26 @@ public class EnemyMoveState : EnemyState
         if (enemy.IsWallDetected() || !enemy.IsGroundDetected())
             x *= -1;
 
-        if (stateTimer < 0 && !isPlayerDetected)
+        if (enemy.isPlayerDetected && !isDetected)
         {
-            x = 0;
-           stateMachine.ChangeState(enemy.idleState);
+            isDetected = true;
+            enemy.moveSpeed += enemy.speedUp;
+            stateTimer = enemy.moveDuration;
         }
-        if (enemy.IsPlayerDetected())
+        if(!enemy.isPlayerDetected && isDetected)
         {
-            isPlayerDetected = true;
-            enemy.moveSpeed *= 1.5f;
+            isDetected = false;
+            enemy.moveSpeed -= enemy.speedUp;
+            if (Random.Range(0, 5) == 0)
+                x *= -1;
         }
-        if (!enemy.IsPlayerDetected() && isPlayerDetected)
-        {
-            
-            isPlayerDetected = false;
-        }
-            
+        if (enemy.isAttackAlready)
+            stateMachine.ChangeState(enemy.attackState);
 
-
+        if (stateTimer < 0)
+        {
+            x = 0;           
+            stateMachine.ChangeState(enemy.idleState);
+        }
     }
 }
