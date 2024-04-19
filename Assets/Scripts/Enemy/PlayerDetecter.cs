@@ -1,20 +1,35 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerDetecter : MonoBehaviour
 {
     public Enemy enemy;
-    private void OnTriggerEnter2D(Collider2D collision)
+    public EnemyState state;
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player") && !enemy.isSleep)
+        {
+            enemy.playerPos = collision.transform;
+            enemy.isPlayerDetected = true;
+            Vector2 targetPosition = collision.transform.position;
+            Vector2 currentPosition = transform.position;
+            Vector2 distanceVector = targetPosition - currentPosition;
+            float angle = Mathf.Atan2(distanceVector.y, distanceVector.x) * Mathf.Rad2Deg;
+            Quaternion newRotation = Quaternion.Euler(0f, 0f, angle);
+            transform.rotation = newRotation;
+            if(distanceVector.x > 0)
+                enemy.angle = 1;
+            else if(distanceVector.x < 0)
+                enemy.angle = -1;
+        }
+    }
+    private void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
-            enemy.isPlayerDetected = true;
-        }
-    }
+            enemy.isPlayerDetected = false;
+            transform.rotation = enemy.transform.rotation;
 
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        enemy.isPlayerDetected = false;
+        }
     }
 }

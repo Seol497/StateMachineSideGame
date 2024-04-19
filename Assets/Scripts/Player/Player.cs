@@ -13,7 +13,6 @@ public class Player : Entity
 
 
     [Header("Move info")]
-    public float moveSpeed = 12f;
     public float jumpForce;
 
     [Header("Dash info")]
@@ -94,6 +93,10 @@ public class Player : Entity
         isBusy = false;
     }
 
+    public override void SetVelocity(float _xVelocity, float _yVelocity)
+    {
+        base.SetVelocity(_xVelocity, _yVelocity);
+    }
 
 
     public void AnimationTrigger() => stateMachine.currentState.AnimationFinishTrigger();

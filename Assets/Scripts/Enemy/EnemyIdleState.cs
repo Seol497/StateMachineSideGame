@@ -24,9 +24,13 @@ public class EnemyIdleState : EnemyState
     public override void Update()
     {
         base.Update();
-
+        if (enemy.isAttackAlready)
+        {
+            stateMachine.ChangeState(enemy.attackState);
+            return;
+        }
         if (stateTimer < 0)
-            stateMachine.ChangeState(enemy.moveState);
+            stateMachine.ChangeState(enemy.reactState);
 
         if (enemy.isPlayerDetected)
         {

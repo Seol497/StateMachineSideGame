@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class Entity : MonoBehaviour
 {
-
+    [Header("Info")]
+    public float moveSpeed;
+    public float hp;
 
     #region ÄÄÆ÷³ÍÆ®
     public Animator anim { get; private set; }
@@ -18,18 +20,12 @@ public class Entity : MonoBehaviour
     [SerializeField] protected float wallCheckDistance;
     [SerializeField] protected LayerMask whatIsGround;
 
-
-
     public int facingDir { get; private set; } = 1;
     protected bool facingRight = true;
 
-
-
-
-
     protected virtual void Awake()
     {
-
+        
     }
 
     protected virtual void Start()
@@ -47,10 +43,7 @@ public class Entity : MonoBehaviour
     #region Velocity
     public void ZeroVelocity() => rb.velocity = new Vector2(0, 0);
 
-
-
-
-    public void SetVelocity(float _xVelocity, float _yVelocity)
+    public virtual void SetVelocity(float _xVelocity, float _yVelocity)
     {
         rb.velocity = new Vector2(_xVelocity, _yVelocity);
         FlipController(_xVelocity);
@@ -71,7 +64,6 @@ public class Entity : MonoBehaviour
 
     #endregion
 
-
     #region Flip
     public void Flip()
     {
@@ -88,5 +80,4 @@ public class Entity : MonoBehaviour
             Flip();
     }
     #endregion
-
 }

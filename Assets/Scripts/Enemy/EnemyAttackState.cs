@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class EnemyAttackState : EnemyState
@@ -8,12 +9,11 @@ public class EnemyAttackState : EnemyState
     {
 
     }
-
     public override void Enter()
     {
+        stateTimer = 1.5f;
         enemy.ZeroVelocity();
         enemy.isAttacking = true;
-        stateTimer = 1.5f;
         base.Enter();
     }
 
@@ -25,14 +25,23 @@ public class EnemyAttackState : EnemyState
     public override void Update()
     {
         base.Update();
-        if(stateTimer < 0)
+        AnimatorStateInfo stateInfo = enemy.anim.GetCurrentAnimatorStateInfo(0);
+        if (stateInfo.normalizedTime >= 1f)
         {
             enemy.isAttacking = false;
-            enemy.isAttackAlready = false;
-            if (enemy.isPlayerDetected)
-                stateMachine.ChangeState(enemy.moveState);
+            if (enemy.isAttackAlready)
+            {
+                stateMachine.ChangeState(enemy.attackState);
+                return;
+            }
             else
-                stateMachine.ChangeState(enemy.idleState);
+            {
+                if (enemy.isPlayerDetected)
+                    stateMachine.ChangeState(enemy.moveState);
+                else
+                    stateMachine.ChangeState(enemy.idleState);
+                return;
+            }
         }
     }
 }
