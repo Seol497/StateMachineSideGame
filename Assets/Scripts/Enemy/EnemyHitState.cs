@@ -25,7 +25,10 @@ public class EnemyHitState : EnemyState
         AnimatorStateInfo stateInfo = enemy.anim.GetCurrentAnimatorStateInfo(0);
         if (stateInfo.normalizedTime >= 1f)
         {
-            stateMachine.ChangeState(enemy.moveState);
+            if(Random.Range(0, 7) == 3 && enemy.Skill)
+                stateMachine.ChangeState(enemy.skillState);
+            else
+                stateMachine.ChangeState(enemy.moveState);
         }
     }
 }

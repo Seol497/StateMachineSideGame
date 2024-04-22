@@ -4,18 +4,26 @@ using UnityEngine;
 
 public class AttackDetecter : MonoBehaviour
 {
-    public Enemy enemy;
-    private void OnTriggerEnter2D(Collider2D collision)
+    Enemy enemy;
+    Player player;
+    private void Awake()
     {
-        if (collision.CompareTag("Player"))
+        enemy = GetComponentInParent<Enemy>();
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+    }
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player") && !enemy.isDead && !player.isDead)
         {
             enemy.isAttackAlready = true;
         }
+        if (player.isDead)
+            enemy.isAttackAlready = false;
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player"))
+        if (collision.CompareTag("Player") && !enemy.isDead)
         {
             enemy.isAttackAlready = false;
         }

@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class Enemy : Entity
 {
-    [SerializeField]
-    protected LayerMask whatIPlayer;
+    [Header("Attack details")]
+    public float damage;
 
     [Header("Anim Duration")]
     public float idleDuration = 3;
@@ -15,10 +15,19 @@ public class Enemy : Entity
     public int angle = 0;
 
     [Header("bool")]
+    public bool React = true;
+    public bool Attack = true;
+    public bool Skill = true;
+    public bool Shoot = true;                       
+
+    [Header("상태 확인")]
     public bool isPlayerDetected = false;
     public bool isAttackAlready = false;
     public bool isAttacking = false;
     public bool isSleep = false;
+
+    [Header("Skill")]
+    public GameObject bringerSkill;
 
     public Transform playerPos;
 
@@ -27,8 +36,10 @@ public class Enemy : Entity
     public EnemyIdleState idleState { get; private set; }
     public EnemyMoveState moveState { get; private set; }
     public EnemyAttackState attackState { get; private set; }
+    public EnemySkillState skillState { get; private set; }
     public EnemyReactState reactState { get; private set; }
     public EnemyHitState hitState { get; private set; }
+    public EnemyDeadState deadState { get; private set; }
     #endregion
 
     protected override void Awake()
@@ -38,8 +49,10 @@ public class Enemy : Entity
         idleState = new EnemyIdleState(this, stateMachine, "Idle");
         moveState = new EnemyMoveState(this, stateMachine, "Move");
         attackState = new EnemyAttackState(this, stateMachine, "Attack");
+        skillState = new EnemySkillState(this, stateMachine, "Skill");
         reactState = new EnemyReactState(this, stateMachine, "React");
         hitState = new EnemyHitState(this, stateMachine, "Hit");
+        deadState = new EnemyDeadState(this, stateMachine, "Dead");
     }
 
     protected override void Start()
@@ -56,6 +69,20 @@ public class Enemy : Entity
         stateMachine.currentState.Update();
     }
 
+    public virtual void SpawnSkill(GameObject Skill)
+    {
+        Instantiate(Skill);
+    }
+
+    public override void GetDamage(float num)
+    {
+        base.GetDamage(num);
+        if (isDead)
+            stateMachine.ChangeState(deadState);
+        else
+            stateMachine.ChangeState(hitState);
+    }
+
     public override void SetVelocity(float _xVelocity, float _yVelocity)
     {
         base.SetVelocity(_xVelocity * angle, _yVelocity);
@@ -68,17 +95,4 @@ public class Enemy : Entity
     {
         base.OnDrawGizmos();
     }
-
-    //protected void OnCollisionEnter2D(Collision2D collision)
-    //{
-    //    if (collision.collider.CompareTag("Player"))
-    //    {
-    //        Physics2D.IgnoreCollision(collision.collider, GetComponent<Collider2D>());
-    //    }
-    //    if (collision.collider.CompareTag("Enemy"))
-    //    {
-    //        Physics2D.IgnoreCollision(collision.collider, GetComponent<Collider2D>());
-    //    }
-    //}
-
 }

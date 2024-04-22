@@ -4,10 +4,15 @@ public class PlayerDetecter : MonoBehaviour
 {
     public Enemy enemy;
     public EnemyState state;
+    Player player;
+    private void Awake()
+    {
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+    }
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player") && !enemy.isSleep)
+        if (collision.CompareTag("Player") && !enemy.isSleep && !enemy.isDead && !player.isDead)
         {
             enemy.playerPos = collision.transform;
             enemy.isPlayerDetected = true;

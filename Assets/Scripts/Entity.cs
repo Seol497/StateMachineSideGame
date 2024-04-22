@@ -7,6 +7,7 @@ public class Entity : MonoBehaviour
     [Header("Info")]
     public float moveSpeed;
     public float hp;
+    public bool isDead = false;
 
     #region ÄÄÆ÷³ÍÆ®
     public Animator anim { get; private set; }
@@ -36,7 +37,14 @@ public class Entity : MonoBehaviour
 
     protected virtual void Update()
     {
+        
+    }
 
+    public virtual void GetDamage(float num)
+    {
+        hp -= num;
+        if (hp <= 0)
+            isDead = true;
     }
 
 

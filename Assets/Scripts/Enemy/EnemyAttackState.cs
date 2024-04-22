@@ -9,6 +9,9 @@ public class EnemyAttackState : EnemyState
     {
 
     }
+
+    private int attackCount = 0;
+
     public override void Enter()
     {
         stateTimer = 1.5f;
@@ -28,19 +31,23 @@ public class EnemyAttackState : EnemyState
         AnimatorStateInfo stateInfo = enemy.anim.GetCurrentAnimatorStateInfo(0);
         if (stateInfo.normalizedTime >= 1f)
         {
+            attackCount++;
             enemy.isAttacking = false;
             if (enemy.isAttackAlready)
             {
                 stateMachine.ChangeState(enemy.attackState);
-                return;
             }
             else
             {
                 if (enemy.isPlayerDetected)
+                {
+                    if (attackCount >= 3 && enemy.Skill)
+                        stateMachine.ChangeState(enemy.skillState);
+                    else
                     stateMachine.ChangeState(enemy.moveState);
+                }
                 else
                     stateMachine.ChangeState(enemy.idleState);
-                return;
             }
         }
     }

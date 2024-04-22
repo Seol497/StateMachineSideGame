@@ -35,17 +35,28 @@ public class PlayerPrimaryAttack : PlayerState
 
 
         stateTimer = 0.1f;
+        switch (comboCounter)
+        {
+            case 0:
+                player.damage = player.attackDamage * 2;
+                break;
+            case 1:
+                player.damage = player.attackDamage * 3;
+                break;
+            case 2:
+                player.damage = player.attackDamage * 5;
+                break;
+        }
     }
 
     public override void Exit()
     {
         base.Exit();
 
-
         player.StartCoroutine("BusyFor", 0.1f);
-      
 
         comboCounter++;
+
         lastTimeAttacked = Time.time;
      
     }

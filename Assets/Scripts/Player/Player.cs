@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml;
 using UnityEngine;
 
 public class Player : Entity
@@ -8,6 +9,8 @@ public class Player : Entity
 
     [Header("Attack details")]
     public Vector2[] attackMovement;
+    public float attackDamage;
+    public float damage;
 
     public bool isBusy { get; private set; }
 
@@ -22,7 +25,10 @@ public class Player : Entity
     public float dashDuration;
     public float dashDir { get; private set; }
 
- 
+    [Header("Bool")]
+    public bool isHit;
+
+
 
 
 
@@ -38,6 +44,9 @@ public class Player : Entity
     public PlayerWallJumpState wallJump { get; private set; }
     public PlayerDashState dashState { get; private set; }
     public PlayerPrimaryAttack primaryAttack { get; private set; }
+    public PlayerHitState hitState { get; private set; }
+    public PlayerDeadState deadState { get; private set; }
+
     
     #endregion
 
@@ -57,6 +66,8 @@ public class Player : Entity
         dashState = new PlayerDashState(this, stateMachine, "Dash");
         wallSlide = new PlayerWallSlideState(this, stateMachine, "WallSlide");
         wallJump = new PlayerWallJumpState(this, stateMachine, "Jump");
+        hitState = new PlayerHitState(this, stateMachine, "Hit");
+        deadState = new PlayerDeadState(this, stateMachine, "Dead");
 
         primaryAttack = new PlayerPrimaryAttack(this, stateMachine, "Attack");
     }
@@ -83,6 +94,15 @@ public class Player : Entity
        
     }
 
+    public override void GetDamage(float num)
+    {
+        base.GetDamage(num);
+        dashDir = 0;
+        if (isDead)
+            stateMachine.ChangeState(deadState);
+        else
+            stateMachine.ChangeState(hitState);
+    }
 
     public IEnumerator BusyFor(float _seconds)
     {
@@ -107,13 +127,13 @@ public class Player : Entity
     private void CheckForDashInput()
     {
 
-        if (IsWallDetected())
+        if (IsWallDetected() && isHit && isDead)
             return;
 
         dashUsageTimer -= Time.deltaTime;
 
 
-        if(Input.GetKeyDown(KeyCode.LeftShift) && dashUsageTimer <0)
+        if(Input.GetKeyDown(KeyCode.LeftShift) && dashUsageTimer <0 &&!isHit && !isDead)
         {
             dashUsageTimer = dashCooldown;
             dashDir = Input.GetAxisRaw("Horizontal");

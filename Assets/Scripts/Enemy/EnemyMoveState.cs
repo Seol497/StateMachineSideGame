@@ -35,7 +35,7 @@ public class EnemyMoveState : EnemyState
     public override void Update()
     {
         base.Update();
-        if (enemy.isAttackAlready)
+        if (enemy.isAttackAlready && enemy.Attack)
         {
             stateMachine.ChangeState(enemy.attackState);
             return;
@@ -46,6 +46,8 @@ public class EnemyMoveState : EnemyState
         if (enemy.isPlayerDetected && !isDetected)
         {
             isDetected = true;
+            if(Random.Range(0, 10) == 5)
+                stateMachine.ChangeState(enemy.skillState);
             enemy.moveSpeed += enemy.speedUp;
         }
         if(!enemy.isPlayerDetected && isDetected)

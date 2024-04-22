@@ -22,7 +22,7 @@ public class PlayerWallSlideState : PlayerState
     {
         base.Update();
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && !player.isHit && !player.isDead)
         {
             stateMachine.ChangeState(player.wallJump);
             return;
@@ -30,7 +30,7 @@ public class PlayerWallSlideState : PlayerState
           
 
 
-        if(xInput !=0 && player.facingDir != xInput)
+        if(xInput !=0 && player.facingDir != xInput && !player.isHit && !player.isDead)
         {
             stateMachine.ChangeState(player.idleState);
         }
@@ -40,7 +40,7 @@ public class PlayerWallSlideState : PlayerState
         else
             rb.velocity = new Vector2(0, rb.velocity.y * 0.7f);
 
-        if(player.IsGroundDetected())
+        if(player.IsGroundDetected() && !player.isHit && !player.isDead)
             stateMachine.ChangeState(player.idleState);
     }
 }

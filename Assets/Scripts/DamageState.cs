@@ -6,20 +6,24 @@ public class GetDamage : MonoBehaviour
 {
     Player player;
     Enemy enemy;
+    public bool isEnemy;
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player"))
+        if (collision.CompareTag("Player") && isEnemy)
         {
-            enemy = gameObject.GetComponent<Enemy>();
-            Debug.Log("damage");
+            enemy = gameObject.transform.parent.GetComponent<Enemy>();
+            if (player != null)
+            {
+                player.GetDamage(enemy.damage);
+            }
         }
-        else if (collision.CompareTag("Enemy"))
+        else if (collision.CompareTag("Enemy") && !isEnemy)
         {
-            Enemy enemy = collision.gameObject.GetComponent<Enemy>();
+            enemy = collision.gameObject.GetComponent<Enemy>();
             if (enemy != null)
             {
                 if (enemy.isSleep == true)
@@ -27,7 +31,7 @@ public class GetDamage : MonoBehaviour
                     enemy.isSleep = false;
                     enemy.angle *= -1;
                 }
-                enemy.stateMachine.ChangeState(enemy.hitState);
+                enemy.GetDamage(player.damage);
             }
         }
     }
